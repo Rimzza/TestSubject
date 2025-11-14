@@ -1,0 +1,43 @@
+services:
+  app:
+    container_name: app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres_container:5432/testdb"
+      SPRING_DATASOURCE_USERNAME: "user"
+      SPRING_DATASOURCE_PASSWORD: "1234"
+    ports:
+      - '8080:8080'
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:15
+    container_name: postgres_container
+    environment:
+      POSTGRES_DB: "testdb"
+      POSTGRES_USER: "user"
+      POSTGRES_PASSWORD: "1234"
+    volumes:
+      - testdb:/var/lib/postgresql/data
+      - ./infrastructure/sql:/docker-entrypoint-initdb.d
+    ports:
+      - '5432:5432'
+
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4:9.10
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "test@mail.ru"
+      PGADMIN_DEFAULT_PASSWORD: "9876"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    ports:
+      - '5050:80'
+
+
+volumes:
+  testdb:
+  pgadmin_data:
